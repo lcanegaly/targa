@@ -3,63 +3,74 @@
 #include <bitset>
 
 Targa::Targa(const char* filepath): filepath_{filepath}{
-   // TODO: Error check file opening read bytes 
+  // TODO: Error check file opening read bytes 
   std::ifstream file(filepath_, std::ios::in | std::ios::binary);
-  header_ = (char*)malloc(kHeaderLength_);
-  file.read(header_, kHeaderLength_);
- if (!LoadImageHeader()){
+  
+  img_buffer_ = header_;
+  file.read((char*)img_buffer_, kHeaderLength_);
+  if (!LoadImageHeader()){
     LoadImageData(file);
   }
+  file.close();
 }
 
 Targa::~Targa(){
-  delete header_;
-  delete data_;
+  delete img_buffer_;
 }
 
 int Targa::LoadImageHeader(){
-  imageIdLength_ = (unsigned char)header_[kIdLengthOffset_] * sizeof(char);
-  colorMapType_ = (unsigned char)header_[kColorMapTypeOffset_];
-  imageType_ = (unsigned char)header_[kImageTypeOffset_];
-  //TODO check three subfields for color map spec 
-  originX_ = (unsigned char)header_[kImageSpecificationOffset_];
-  //TODO use constants to set subfield locations
-  //TODO LSB ordering
-  originY_ = (unsigned char)header_[kImageSpecificationOffset_ + 2]; 
-  imageWidth_ = (unsigned char)header_[kImageSpecificationOffset_ + 4];
-  imageHeight_ = (unsigned char)header_[kImageSpecificationOffset_ + 6];
-  pixelDepth_ = (unsigned char)header_[kImageSpecificationOffset_ + 8];
-  imageDescriptor_ = (unsigned char)header_[kImageSpecificationOffset_ + 9];
-  imageData_ = 3 * (imageWidth_ * imageHeight_);
+  imageIdLength_ = Get8Bits();
+  colorMapType_ = Get8Bits();
+  imageType_ = Get8Bits();
 
-  //TODO - Add processing for color map.
+  //TODO handle color maps, for now we skip these 5 bytes.
   if (colorMapType_ > 0)
     return 1;
   colorMapData_ = 0;
-
+  img_buffer_+=5;
+  
+  originX_ = Get16BitsLe();
+  originY_ = Get16BitsLe();
+  imageWidth_ = Get16BitsLe();
+  imageHeight_ = Get16BitsLe();
+  pixelDepth_ = Get8Bits();
+  imageDescriptor_ = Get8Bits();
+  
+  imageData_ = 3 * (imageWidth_ * imageHeight_);
+  
   return 0;
 }
 
 int Targa::LoadImageData(std::ifstream& file){
-  dataOffset_ = kHeaderLength_ + imageIdLength_ + colorMapData_; 
-  data_ = (char*)malloc(imageData_);
-  file.read(data_, imageData_);
-
+  dataOffset_ = kHeaderLength_ + imageIdLength_;  
+  img_buffer_ = new unsigned char[imageData_];
+  file.read((char*)img_buffer_, imageData_);
   return 0;
 }
 
-void Targa::Print(){
-  std::cout << imageData_ << "id length: " << imageIdLength_ << "\n colorMapType: " << colorMapType_ << "\n Image type: " << imageType_
-    << "\n X origin: " << originX_ << "\n Y origin: " << originY_ << "\n Width: " << imageWidth_ << "\n Height: " << imageHeight_
-    << "\n Pixel Depth: " << pixelDepth_ << "\n Img Desc: " << imageDescriptor_ << " end..  \n";
+unsigned char Targa::Get8Bits(){
+  unsigned char val = *img_buffer_;
+  img_buffer_++;
+  return val;
+}
 
+int Targa::Get16BitsLe(){
+  unsigned char b = Get8Bits();
+  return (int)b + (int)(Get8Bits() << 8); 
+}
+
+void Targa::Print(){
+  std::cout << "-id length: " << imageIdLength_ << "\n-colorMapType: " << colorMapType_ << "\n-Image type: " << imageType_
+    << "\n-X origin: " << originX_ << "\n-Y origin: " << originY_ << "\n-Width: " << imageWidth_ << "\n-Height: " << imageHeight_
+    << "\n-Pixel Depth: " << pixelDepth_ << "\n-Img Desc: " << imageDescriptor_ << "\n";
 
   std::cout << "--- HEADER DATA ---\n";
   for (int i = 1; i <= kHeaderLength_; i++)
     std::cout << std::bitset<8>(header_[i-1]) << ((i%6 == 0 && i > 0) ? " \n" : " ");
+
   std::cout << "--- PIXEL DATA ---\n";
   for (int i = 1; i <= (imageHeight_ * imageWidth_ * 3); ++i){
-    std::cout << std::bitset<8>(data_[i-1]) << " " << ((i%6 == 0 && i > 0) ? " \n" : " ");
+    std::cout << std::bitset<8>(img_buffer_[i-1]) << " " << ((i%6 == 0 && i > 0) ? " \n" : " ");
   }
 }
 
