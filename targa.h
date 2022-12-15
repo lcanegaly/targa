@@ -14,11 +14,13 @@ class Targa{
 
  private:
   int LoadImageHeader();
-  int LoadImageData(std::ifstream& file);
+  int LoadImageData();
   unsigned char Get8Bits();
   int Get16BitsLe(); 
-
+  void FormatRGB(unsigned char*);
+  
  private:
+  std::ifstream* filePtr_ = nullptr;
   const char* filepath_;
   const char* file_;
   static constexpr size_t kHeaderLength_ = 18;

@@ -5,11 +5,12 @@
 Targa::Targa(const char* filepath): filepath_{filepath}{
   // TODO: Error check file opening read bytes 
   std::ifstream file(filepath_, std::ios::in | std::ios::binary);
-  
+  filePtr_ = &file;
+
   img_buffer_ = header_;
   file.read((char*)img_buffer_, kHeaderLength_);
   if (!LoadImageHeader()){
-    LoadImageData(file);
+    LoadImageData();
   }
   file.close();
 }
@@ -41,11 +42,32 @@ int Targa::LoadImageHeader(){
   return 0;
 }
 
-int Targa::LoadImageData(std::ifstream& file){
+int Targa::LoadImageData(){
   dataOffset_ = kHeaderLength_ + imageIdLength_;  
   img_buffer_ = new unsigned char[imageData_];
-  file.read((char*)img_buffer_, imageData_);
+
+  unsigned char pixelBuffer[3];
+  for (int i = 0; i < imageWidth_*imageHeight_; i++){
+    FormatRGB(pixelBuffer);
+    img_buffer_ = img_buffer_+3;
+  }
+  
+  img_buffer_ = img_buffer_-3 * imageWidth_ * imageHeight_;
+  
+  // file.read((char*)img_buffer_, imageData_);
   return 0;
+}
+
+void Targa::FormatRGB(unsigned char* pixel_buffer){
+ 
+  for (int i = 2; i >= 0; i-- ){
+    filePtr_->read((char*)img_buffer_+i, 1);
+  }
+  //for (int i = 0; i < 3; i++)
+  //  std::cout << std::bitset<8>(img_buffer_[i]) << " ";
+  //std::cout << "\n";
+
+  return;
 }
 
 unsigned char Targa::Get8Bits(){
