@@ -2,7 +2,11 @@
 #include <iostream>
 #include <bitset>
 
-Targa::Targa(const char* filepath): filepath_{filepath}{
+namespace Targa {
+
+TgaImage::TgaImage(const char* filepath): 
+    filepath_{filepath}
+{
   // TODO: Error check file opening read bytes 
   std::ifstream file(filepath_, std::ios::in | std::ios::binary);
   filePtr_ = &file;
@@ -15,11 +19,11 @@ Targa::Targa(const char* filepath): filepath_{filepath}{
   file.close();
 }
 
-Targa::~Targa(){
+TgaImage::~TgaImage(){
   delete img_buffer_;
 }
 
-int Targa::LoadImageHeader(){
+int TgaImage::LoadImageHeader(){
   imageIdLength_ = Get8Bits();
   colorMapType_ = Get8Bits();
   imageType_ = Get8Bits();
@@ -42,7 +46,7 @@ int Targa::LoadImageHeader(){
   return 0;
 }
 
-int Targa::LoadImageData(){
+int TgaImage::LoadImageData(){
   dataOffset_ = kHeaderLength_ + imageIdLength_;  
   img_buffer_ = new unsigned char[imageData_];
 
@@ -58,7 +62,7 @@ int Targa::LoadImageData(){
   return 0;
 }
 
-void Targa::FormatRGB(unsigned char* pixel_buffer){
+void TgaImage::FormatRGB(unsigned char* pixel_buffer){
  
   for (int i = 2; i >= 0; i-- ){
     filePtr_->read((char*)img_buffer_+i, 1);
@@ -70,18 +74,18 @@ void Targa::FormatRGB(unsigned char* pixel_buffer){
   return;
 }
 
-unsigned char Targa::Get8Bits(){
+unsigned char TgaImage::Get8Bits(){
   unsigned char val = *img_buffer_;
   img_buffer_++;
   return val;
 }
 
-int Targa::Get16BitsLe(){
+int TgaImage::Get16BitsLe(){
   unsigned char b = Get8Bits();
   return (int)b + (int)(Get8Bits() << 8); 
 }
 
-void Targa::Print(){
+void TgaImage::Print(){
   std::cout << "-id length: " << imageIdLength_ << "\n-colorMapType: " << colorMapType_ << "\n-Image type: " << imageType_
     << "\n-X origin: " << originX_ << "\n-Y origin: " << originY_ << "\n-Width: " << imageWidth_ << "\n-Height: " << imageHeight_
     << "\n-Pixel Depth: " << pixelDepth_ << "\n-Img Desc: " << imageDescriptor_ << "\n";
@@ -96,3 +100,4 @@ void Targa::Print(){
   }
 }
 
+}; //end of namespace Targa

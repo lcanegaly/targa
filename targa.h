@@ -1,16 +1,30 @@
+#pragma once
 #include <cstddef>
 #include <fstream>
 
-class Targa{
- public:
-  Targa(const char* filepath);
-  ~Targa();
+namespace Targa
+{
 
-  const unsigned char* data() {return img_buffer_;}
-  size_t size() {return imageData_;}
-  int width() {return imageWidth_;}
-  int height() {return imageHeight_;}
-  void Print();
+class Image{
+ public:
+  virtual const unsigned char* data() = 0;
+  virtual size_t size() = 0;
+  virtual int width() = 0;
+  virtual int height() = 0;
+  virtual void Print() = 0;
+};
+
+
+class TgaImage : public Image{
+ public:
+  TgaImage(const char* filepath);
+  ~TgaImage();
+
+  const unsigned char* data() override {return img_buffer_;}
+  size_t size() override {return imageData_;}
+  int width() override {return imageWidth_;}
+  int height() override {return imageHeight_;}
+  void Print() override;
 
  private:
   int LoadImageHeader();
@@ -20,7 +34,7 @@ class Targa{
   void FormatRGB(unsigned char*);
   
  private:
-  std::ifstream* filePtr_ = nullptr;
+  std::ifstream* filePtr_;
   const char* filepath_;
   const char* file_;
   static constexpr size_t kHeaderLength_ = 18;
@@ -41,3 +55,5 @@ class Targa{
   int pixelDepth_;
   int imageDescriptor_;
 };
+
+} //end namespace Targa
