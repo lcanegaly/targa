@@ -16,6 +16,7 @@ struct pixel{
 class Image{
  public:
   virtual const unsigned char* data() = 0;
+  virtual ~Image() = default;
   virtual size_t size() = 0;
   virtual int width() = 0;
   virtual int height() = 0;
