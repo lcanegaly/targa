@@ -1,0 +1,78 @@
+#CMake files
+*.tcl
+CMakeCache.txt
+*.cmake
+Source/Makefile
+Makefile
+
+# Media
+*.jpg
+*.tga
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+CMakeFiles/
+resources/
+Dependencies/
+Include/
+build/
+img/
+x64/
+vs/
+.vs/
+
+# Visual studio
+/Debug/
+/Release/
+/includes/
+*.vcxproj*
+*.user
+*.filter
+*.sln
+*.suo
+*.manifest
+*.manifest.res
+*manifest.rc
+*res.res
+*.idb
+*.obj
+*.tlog
+*.lib
+*.ipch
+*.ilk
+*.log
+*.lastbuildstate
+*.unsuccessfulbuild
+*.pdb
+*.db
