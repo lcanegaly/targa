@@ -38,6 +38,7 @@ class TgaImage : public Image{
   void Print() override;
 
  private:
+  int CreateBuffer();
   int LoadImageHeader();
   int LoadImageData();
   unsigned char Get8Bits();

@@ -9,9 +9,18 @@ TgaImage::TgaImage(const char* filepath):
     colorMapBuffer_{0}, colorIndexBuffer_{0}, handleColorIndexBuffer_{NULL},
     handleColorMapBuffer_{NULL}, handleImageBuffer_{NULL}
 {
+
   // TODO: Error check file opening read bytes 
   std::ifstream file(filepath_, std::ios::in | std::ios::binary);
   filePtr_ = &file;
+  if (file.rdstate() == std::ios::failbit){
+    std::cout << "no file can be opened\n";
+    //TODO - fix these temporary test values.
+    //this is setting a default blank buffer
+    imageData_ = 4 * (250 * 250);
+    CreateBuffer();
+    return;
+  }
 
   img_buffer_ = header_;
   file.read((char*)img_buffer_, kHeaderLength_);
@@ -25,6 +34,15 @@ TgaImage::~TgaImage(){
   delete handleColorMapBuffer_;
   delete handleColorIndexBuffer_;
   delete handleImageBuffer_;
+}
+
+int TgaImage::CreateBuffer(){
+  img_buffer_ = new unsigned char[imageData_];
+  handleImageBuffer_ = img_buffer_;
+  
+  if (img_buffer_)
+    return 1;
+  return 0;
 }
 
 int TgaImage::LoadImageHeader(){
@@ -63,10 +81,8 @@ int TgaImage::LoadImageHeader(){
 }
 
 int TgaImage::LoadImageData(){
-  img_buffer_ = new unsigned char[imageData_];
-  handleImageBuffer_ = img_buffer_;
-
-  //TODO, extract this out to a function. 
+  CreateBuffer();
+    //TODO, extract this out to a function. 
   switch(imageType_){
     case 1:
       colorMapBuffer_ = new unsigned char[colorMapLength_];
