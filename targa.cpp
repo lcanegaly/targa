@@ -17,9 +17,9 @@ TgaImage::TgaImage(const char* filepath):
     std::cout << "no file can be opened\n";
     //TODO - fix these temporary test values.
     //this is setting a default blank buffer
-    imageData_ = 3 * (256 * 256);
-    imageWidth_ = 256;
-    imageHeight_ = 256;
+    imageData_ = 3 * (512 * 512);
+    imageWidth_ = 512;
+    imageHeight_ = 512;
     CreateBuffer();
 
     return;
