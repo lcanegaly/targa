@@ -21,6 +21,7 @@ class Image{
   virtual int width() = 0;
   virtual int height() = 0;
   virtual void Print() = 0;
+  virtual int pixel_depth() = 0;
 };
 
 class TgaImage : public Image{
@@ -36,6 +37,7 @@ class TgaImage : public Image{
   int width() override {return imageWidth_;}
   int height() override {return imageHeight_;}
   void Print() override;
+  int pixel_depth() override {return pixelDepth_;}
 
  private:
   int CreateBuffer();
@@ -44,7 +46,8 @@ class TgaImage : public Image{
   unsigned char Get8Bits();
   unsigned char Get8Bits(unsigned char*& buffer);
   int Get16BitsLe(); 
-  void FormatRGB(unsigned char*);
+  void FormatRGB();
+  void FormatRGBA();
   
  private:
   std::ifstream* filePtr_;

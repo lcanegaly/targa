@@ -111,6 +111,7 @@ int TgaImage::LoadImageData(){
       filePtr_->read((char*)colorIndexBuffer_, imageWidth_*imageHeight_); 
       break;
     case 2:
+      std::cout << "case 2 image\n";
       break; 
     default:
       std::cout << "error";
@@ -131,21 +132,36 @@ int TgaImage::LoadImageData(){
         img_buffer_[imgBufferIndex++] = colorMap_[mapIndex].a;
     }
   } else {
-    unsigned char pixelBuffer[3];
-    for (int i = 0; i < imageWidth_*imageHeight_; i++){
-      FormatRGB(pixelBuffer);
-      img_buffer_ = img_buffer_+3;
-    }
-    img_buffer_ = img_buffer_-3 * imageWidth_ * imageHeight_;
+    if (pixelDepth_/8 == 3)
+      FormatRGB();
+    else if(pixelDepth_/8 == 4)
+      FormatRGBA();
   }
   // file.read((char*)img_buffer_, imageData_);
   return 0;
 }
 
-void TgaImage::FormatRGB(unsigned char* pixel_buffer){
-  for (int i = 2; i >= 0; i-- ){
-    filePtr_->read((char*)img_buffer_+i, 1);
+void TgaImage::FormatRGBA(){
+  //BGRA RGB
+  for (int i = 0; i < imageWidth_*imageHeight_; i++){
+    for (int j = 2; j >= 0; j-- ){
+      filePtr_->read((char*)img_buffer_+j, 1);
+    }
+    filePtr_->read((char*)img_buffer_+3, 1);
+    img_buffer_ = img_buffer_+4;
   }
+  img_buffer_ = img_buffer_-4 * imageWidth_ * imageHeight_;
+  return;
+}
+
+void TgaImage::FormatRGB(){
+  for (int i = 0; i < imageWidth_*imageHeight_; i++){
+    for (int i = 2; i >= 0; i-- ){
+      filePtr_->read((char*)img_buffer_+i, 1);
+    }
+    img_buffer_ = img_buffer_+3;
+  }
+  img_buffer_ = img_buffer_-3 * imageWidth_ * imageHeight_;
   return;
 }
 
@@ -176,7 +192,7 @@ void TgaImage::Print(){
     std::cout << std::bitset<8>(header_[i-1]) << ((i%6 == 0 && i > 0) ? " \n" : " ");
 
   std::cout << "--- PIXEL DATA ---\n";
-  for (int i = 1; i <= (imageHeight_ * imageWidth_ * 3); ++i){
+  for (int i = 1; i <= (imageHeight_ * imageWidth_ * pixelDepth_/8); ++i){
     std::cout << std::bitset<8>(img_buffer_[i-1]) << " " << ((i%6 == 0 && i > 0) ? " \n" : " ");
   }
 }
