@@ -14,13 +14,12 @@ TgaImage::TgaImage(const char* filepath):
   std::ifstream file(filepath_, std::ios::in | std::ios::binary);
   filePtr_ = &file;
   if (file.rdstate() == std::ios::failbit){
-    std::cout << "no file can be opened\n";
     //TODO - fix these temporary test values.
     //this is setting a default blank buffer
-    imageData_ = 3 * (512 * 512);
+    imageData_ = 4 * (512 * 512);
     imageWidth_ = 512;
     imageHeight_ = 512;
-    pixelDepth_ = 3*8; 
+    pixelDepth_ = 4*8; 
     CreateBuffer();
 
     return;
@@ -63,7 +62,6 @@ int TgaImage::LoadImageHeader(){
   imageWidth_ = Get16BitsLe();
   imageHeight_ = Get16BitsLe();
   pixelDepth_ = Get8Bits();
-  std::cout << pixelDepth_ << "pixel depth \n";
   imageDescriptor_ = Get8Bits();
 
   //TODO, extract this out to a function. 
@@ -90,12 +88,10 @@ int TgaImage::LoadImageData(){
     //TODO, extract this out to a function. 
   switch(imageType_){
     case 1:
-      std::cout << "image type 1\n";
       colorMapBuffer_ = new unsigned char[colorMapLength_];
       handleColorMapBuffer_ = colorMapBuffer_;  
       filePtr_->read((char*)colorMapBuffer_, colorMapLength_*(colorMapEntrySize_/8)); 
       if (colorMapEntrySize_/8 > 3) {
-        std::cout << "color map size " << colorMapEntrySize_/8 << "\n";
         for (int i = 0; i < colorMapLength_; i++){
           colorMap_[i].b = Get8Bits(colorMapBuffer_);
           colorMap_[i].g = Get8Bits(colorMapBuffer_);
@@ -103,7 +99,6 @@ int TgaImage::LoadImageData(){
           colorMap_[i].a = Get8Bits(colorMapBuffer_);
         }       
       } else {
-        std::cout << "color map size " << colorMapEntrySize_/8 << "\n";
         for (int i = 0; i < colorMapLength_; i++){
           colorMap_[i].b = Get8Bits(colorMapBuffer_);
           colorMap_[i].g = Get8Bits(colorMapBuffer_);
@@ -116,7 +111,6 @@ int TgaImage::LoadImageData(){
       filePtr_->read((char*)colorIndexBuffer_, imageWidth_*imageHeight_); 
       break;
     case 2:
-      std::cout << "image type 2\n";
       break; 
     default:
       std::cout << "error";
@@ -127,7 +121,6 @@ int TgaImage::LoadImageData(){
     filePtr_->read((char*)img_buffer_, imageData_);
     int pixels = imageWidth_ * imageHeight_;
     int channels = colorMapEntrySize_/8;
-    std::cout << "channels is " << channels << "\n";
     int imgBufferIndex = 0;
     for (int i = 0; i < pixels; i++){
       int mapIndex = Get8Bits(colorIndexBuffer_);
@@ -139,11 +132,9 @@ int TgaImage::LoadImageData(){
     }
   } else {
     if (pixelDepth_/8 == 3){
-      std::cout << "pixel depth is 3\n";
       FormatRGB();
     }
     else if(pixelDepth_/8 == 4){
-      std::cout << "pixel depth is 4\n";
       FormatRGBA();
     }
   }
