@@ -3,6 +3,13 @@
 #include <fstream>
 #include <iostream>
 
+struct PixelBuffer {
+  const unsigned char* data = nullptr;
+  int width{0};
+  int height{0};
+  int color_channels{0};
+};
+
 namespace Targa
 {
 
@@ -12,6 +19,9 @@ struct pixel{
   unsigned char b;
   unsigned char a;
 };
+
+// TODO - Pull other generic functionality out to function
+PixelBuffer LoadTga(const char* filename);
 
 class Image{
  public:
@@ -26,12 +36,12 @@ class Image{
 
 class TgaImage : public Image{
  public:
-  TgaImage(const char* filepath);
+  TgaImage(const char* filename);
   ~TgaImage();
   TgaImage(const TgaImage&) {
     std::cout << "COPY CONSTRUCTOR \n";
   }
-
+    
   const unsigned char* data() override {return img_buffer_;}
   size_t size() override {return imageData_;}
   int width() override {return imageWidth_;}

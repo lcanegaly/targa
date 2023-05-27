@@ -4,6 +4,16 @@
 
 namespace Targa {
 
+PixelBuffer LoadTga(const char* filename) {
+  TgaImage* t = new TgaImage(filename);
+  return PixelBuffer{
+    t->data(),
+    t->width(),
+    t->height(),
+    t->pixel_depth()/4
+  };
+}
+
 TgaImage::TgaImage(const char* filepath): 
     filepath_{filepath}, img_buffer_{0}, colorMap_{0},
     colorMapBuffer_{0}, colorIndexBuffer_{0}, handleColorIndexBuffer_{NULL},
