@@ -10,7 +10,7 @@ PixelBuffer LoadTga(const char* filename) {
     t->data(),
     t->width(),
     t->height(),
-    t->pixel_depth()/4
+    t->pixel_depth()
   };
 }
 
@@ -29,7 +29,7 @@ TgaImage::TgaImage(const char* filepath):
     imageData_ = 4 * (512 * 512);
     imageWidth_ = 512;
     imageHeight_ = 512;
-    pixelDepth_ = 4*8; 
+    pixelDepth_ = 8; 
     CreateBuffer();
 
     return;
